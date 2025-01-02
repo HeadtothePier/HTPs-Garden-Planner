@@ -1,0 +1,61 @@
+document.getElementById('garden-form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  // Get user input
+  const vegetable = document.getElementById('vegetable').value;
+  const zone = parseInt(document.getElementById('zone').value);
+  const frostDate = new Date(document.getElementById('frost-date').value);
+  const bedSize = parseInt(document.getElementById('bed-size').value);
+
+  // Get planting suggestions based on input
+  const plantingSuggestions = getPlantingSuggestions(vegetable, zone, frostDate, bedSize);
+
+  // Display the suggestions
+  document.getElementById('suggestions').innerHTML = plantingSuggestions;
+});
+
+const companionPlants = {
+  "tomato": ["basil", "onion", "carrot"],
+  "basil": ["tomato", "oregano", "pepper"],
+  "carrot": ["tomato", "onion", "lettuce"],
+  "onion": ["carrot", "tomato", "lettuce"],
+  "lettuce": ["carrot", "onion"]
+};
+
+function getCompanionPlants(vegetable) {
+  const companions = companionPlants[vegetable.toLowerCase()];
+  if (companions) {
+    return `Companion plants for ${vegetable}: ${companions.join(", ")}`;
+  } else {
+    return `No companion plants found for ${vegetable}.`;
+  }
+}
+
+function getPlantingDate(frostDate, zone) {
+  const plantingOffsets = {
+    1: 60, // For Zone 1, plant 60 days after last frost
+    2: 55, // For Zone 2, plant 55 days after last frost
+    3: 50, // For Zone 3, plant 50 days after last frost
+    // Add more zones as needed
+  };
+
+  const offsetDays = plantingOffsets[zone] || 30; // Default offset is 30 days
+  const plantingDate = new Date(frostDate);
+  plantingDate.setDate(frostDate.getDate() + offsetDays);
+
+  return plantingDate.toDateString();
+}
+
+function getPlantingSuggestions(vegetable, zone, frostDate, bedSize) {
+  const companionPlantsText = getCompanionPlants(vegetable);
+  const plantingDateText = getPlantingDate(frostDate, zone);
+
+  return `
+    <h2>Planting Suggestions for ${vegetable.charAt(0).toUpperCase() + vegetable.slice(1)}</h2>
+    <p>Garden Zone: ${zone}</p>
+    <p>Last Frost Date: ${frostDate.toDateString()}</p>
+    <p>Start Planting Outdoors on: ${plantingDateText}</p>
+    <p>Bed Size: ${bedSize} sq ft</p>
+    <p>${companionPlantsText}</p>
+  `;
+}
